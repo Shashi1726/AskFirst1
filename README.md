@@ -104,4 +104,49 @@ The LangGraph Orchestration State Graph workflow flows as follows:
    ▼
 [END]
 ```
-"# AskFirst1" 
+
+## Production Deployment
+
+This project contains configuration files for simple, one-click deployments to popular hosting platforms.
+
+### 1. Deploying on Render (using Render Blueprints)
+
+A [render.yaml](file:///d:/DEV_WORK/agentic%20ai/work/render.yaml) blueprint specification file is provided in the root directory. This will automatically provision:
+- A FastAPI web service for the backend.
+- A persistent SQLite storage volume (mounted to `/var/data`) to prevent thread history data loss.
+- A Streamlit web service for the frontend.
+
+#### Deployment Steps:
+1. Push your repository to GitHub or GitLab.
+2. Go to the [Render Dashboard](https://dashboard.render.com/) and click **New -> Blueprint**.
+3. Connect your repository. Render will automatically read [render.yaml](file:///d:/DEV_WORK/agentic%20ai/work/render.yaml) and prompt you for the setup.
+4. Input your `GEMINI_API_KEY` under the backend environment variables.
+5. Click **Apply** to deploy both the frontend and backend. The Streamlit app will automatically link to the FastAPI service.
+
+---
+
+### 2. Deploying on Railway
+
+Railway does not use a single blueprint file, but you can deploy easily by following these steps:
+
+#### Step A: Deploy the Backend Service (FastAPI)
+1. In the Railway dashboard, select **New Project** and connect your Github repository.
+2. Under service settings, select the root folder, and set the **Start Command**:
+   ```bash
+   python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+   ```
+3. Add a **Volume** (e.g., mounted to `/app/data`) via the Railway UI.
+4. Add the following environment variables:
+   - `GEMINI_API_KEY`: Your Google Gemini API Key
+   - `DATABASE_URL`: `sqlite:////app/data/chat_app.db` (The SQLite path folder will be auto-created by [backend/database.py](file:///d:/DEV_WORK/agentic%20ai/work/backend/database.py)).
+5. Expose the service to get a public URL (e.g., `https://backend-production.up.railway.app`).
+
+#### Step B: Deploy the Frontend Service (Streamlit)
+1. Add a second service from the same Github repository in the same Railway project.
+2. Set the **Start Command**:
+   ```bash
+   streamlit run frontend/app.py --server.port $PORT --server.address 0.0.0.0
+   ```
+3. Add the following environment variable:
+   - `BACKEND_URL`: The public URL of your FastAPI backend service (e.g., `https://backend-production.up.railway.app`).
+4. Expose the frontend service to get your public Streamlit chat app URL.
