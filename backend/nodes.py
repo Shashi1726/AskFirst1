@@ -44,7 +44,7 @@ def load_global_memory(state: ChatState) -> dict:
                     "with no conversational intro or outro.\n\n"
                     f"Chat History:\n{formatted_chats}"
                 )
-                summary_text = generate_text(prompt)
+                summary_text = generate_text_with_retry(prompt)
                 if summary_text.strip():
                     new_summary = MemorySummary(summary=summary_text.strip())
                     db.add(new_summary)
@@ -105,7 +105,7 @@ def call_gemini(state: ChatState, config: RunnableConfig) -> dict:
             token_queue.put(None)
         return {"response": full_response}
     else:
-        response = generate_text(prompt)
+        response = generate_text_with_retry(prompt)
         return {"response": response}
 
 def save_messages(state: ChatState) -> dict:
