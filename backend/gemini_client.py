@@ -11,7 +11,7 @@ if not api_key:
     raise ValueError("GEMINI_API_KEY environment variable is not set. Please set it in your .env file.")
 
 client = genai.Client(api_key=api_key)
-DEFAULT_MODEL = "gemini-2.0-flash"
+DEFAULT_MODEL = "gemini-2.5-flash"
 
 def generate_text(prompt: str, model: str = DEFAULT_MODEL) -> str:
     """Generates text based on a prompt."""
